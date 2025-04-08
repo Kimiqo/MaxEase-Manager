@@ -1,4 +1,3 @@
-// src/components/MiniTimetable.js
 import React, { forwardRef } from "react";
 
 const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {

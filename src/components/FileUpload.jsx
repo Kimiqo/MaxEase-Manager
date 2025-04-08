@@ -1,4 +1,3 @@
-// src/components/FileUpload.js
 import React from "react";
 import * as XLSX from "xlsx";
 
@@ -11,7 +10,7 @@ const excelSerialToDate = (serial) => {
   const daysOffset = serial - 1; // Excel counts Jan 1, 1900 as 1, not 0
   const date = new Date(excelEpoch.getTime() + daysOffset * 24 * 60 * 60 * 1000);
   
-  // Format as YYYY-MM-DD
+  // Format as DD-MM-YYYY
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
