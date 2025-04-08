@@ -17,6 +17,7 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
             <th className="p-3">Venue</th>
             <th className="p-3">Course Code</th>
             <th className="p-3">Course Name</th>
+            <th className="p-3 max-w-xs">Programme Code</th>
             <th className="p-3">Lecturer</th>
           </tr>
         </thead>
@@ -29,6 +30,7 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
               <td className="p-3">{exam.examsVenue}</td>
               <td className="p-3">{exam.courseCode}</td>
               <td className="p-3">{exam.courseName}</td>
+              <td className="p-3 truncate max-w-xs">{exam.programmeCode}</td>
               <td className="p-3">{exam.lecturerName}</td>
             </tr>
           ))}

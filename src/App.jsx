@@ -20,6 +20,7 @@ function App() {
       exam.courseCode,
       exam.blockCode,
       exam.lecturerName,
+      exam.programmeCode,
     ].some((field) =>
       field.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -57,7 +58,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-center mb-6">
-        GIMPA 2024-2025 Exam Timetable
+        MaxEase Exam Timetable Management
       </h1>
 
       <FileUpload onDataParsed={setTimetableData} setIsLoading={setIsLoading} />
