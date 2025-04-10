@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
+import { SpeedInsights } from "@vercel/speed-insights/react"; // Add Speed Insights
+import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa"; // Icons
 import SearchBar from "../components/SearchBar";
 import TimetableTable from "../components/TimetableTable";
 import MiniTimetable from "../components/MiniTimetable";
@@ -192,22 +194,29 @@ function MainPage() {
 
       {/* Footer */}
       <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
-        <p>
-          Developed by Michael Darko • © {new Date().getFullYear()}{" "}
+        <p className="flex justify-center items-center gap-4">
+          Developed by Michael Darko • © {new Date().getFullYear()}
           <a
             href="https://github.com/Kimiqo"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline"
+            className="text-blue-400 hover:text-blue-300"
           >
-            GitHub
-          </a>{" "}
-          {" "}
+            <FaGithub size={20} />
+          </a>
           <a
             href="mailto:michael12darko@gmail.com"
-            className="text-blue-400 hover:text-blue-300 underline"
+            className="text-blue-400 hover:text-blue-300"
           >
-            Contact
+            <FaEnvelope size={20} />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/mkkd-michael-darko/" // Replace with your LinkedIn URL
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300"
+          >
+            <FaLinkedin size={20} />
           </a>
         </p>
       </footer>
@@ -224,6 +233,9 @@ function MainPage() {
 
       {/* How to Use Modal */}
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
+
+      {/* Vercel Speed Insights */}
+      <SpeedInsights />
     </div>
   );
 }
