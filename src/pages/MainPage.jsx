@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
-import { SpeedInsights } from "@vercel/speed-insights/react"; // Add Speed Insights
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa"; // Icons
 import SearchBar from "../components/SearchBar";
 import TimetableTable from "../components/TimetableTable";
@@ -234,8 +233,6 @@ function MainPage() {
       {/* How to Use Modal */}
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
 
-      {/* Vercel Speed Insights */}
-      <SpeedInsights />
     </div>
   );
 }
