@@ -1,5 +1,6 @@
 import express from "express";
 import fetch from "node-fetch";
+import "dotenv/config"
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use((req, res, next) => {
 });
 
 export default async function handler(req, res) {
-  const fileUrl = "https://drive.google.com/uc?export=download&id=1k5BSU_IaqfDuzlffFzmydbFphx4UnNlE";
+  const fileUrl = `https://drive.google.com/uc?export=download&id=${process.env.FILE_ID}`;
   try {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error("Failed to fetch file");
