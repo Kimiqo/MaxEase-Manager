@@ -1,4 +1,3 @@
-// src/pages/MainPage.js
 import React, { useState, useRef, useEffect } from "react";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
@@ -145,8 +144,8 @@ function MainPage() {
       </header>
 
       {/* Main content */}
-      <div className="flex-1 p-4 sm:p-6 pb-16 mb-2.5">
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-1 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 animate-pulse tracking-wide">
+      <div className="flex-1 p-4 sm:p-6 pb-20 sm:pb-24">
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 animate-pulse tracking-wide">
           Exam Scheduling Made Easy
         </h3>
         {isLoading ? (
@@ -192,14 +191,14 @@ function MainPage() {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 mt-2.5 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
+      <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
         <p>
           Developed by Michael Darko • © {new Date().getFullYear()}{" "}
           <a
             href="https://github.com/Kimiqo"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline "
+            className="text-blue-400 hover:text-blue-300 underline"
           >
             GitHub
           </a>{" "}
