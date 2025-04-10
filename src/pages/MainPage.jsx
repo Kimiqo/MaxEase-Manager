@@ -20,7 +20,7 @@ function MainPage() {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "http://localhost:3001/timetable";
+        const proxyUrl = "https://max-ease-manager.vercel.app/api/timetable";
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error("Failed to fetch timetable from proxy");
         const arrayBuffer = await response.arrayBuffer();
@@ -134,7 +134,7 @@ function MainPage() {
       {/* Header */}
       <header className="bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 sm:p-6 shadow-lg flex flex-col sm:flex-row justify-between items-center">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 animate-pulse text-center sm:text-left">
-          MaxEase Exam Timetable Management
+          Gimpa Exam Timetable Management
         </h1>
         <button
           onClick={openModal}
