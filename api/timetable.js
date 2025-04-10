@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 const app = express();
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Update this for production later
+  res.header("Access-Control-Allow-Origin", "https://max-ease-manager.vercel.app"); // Update this for production later
   res.header("Access-Control-Allow-Methods", "GET");
   next();
 });
