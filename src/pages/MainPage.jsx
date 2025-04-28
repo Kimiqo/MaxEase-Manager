@@ -160,25 +160,7 @@ function MainPage() {
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 animate-pulse tracking-wide">
           Exam Scheduling Made Easy
         </h3>
-        {isLoading ? (
-          <p className="text-center text-gray-500 text-sm sm:text-base">Loading timetable data...</p>
-        ) : timetableData.length > 0 ? (
-          <>
-            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
-              <div className="w-full sm:w-1/2">
-                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-              </div>
-              <div className="w-full sm:w-1/2">
-                <input
-                  type="text"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  placeholder="Filter by date (e.g., 2025-05-11)"
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                />
-              </div>
-            </div>
-            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
               {selectedCourses.length > 0 && (
                 <>
                   <button
@@ -195,6 +177,24 @@ function MainPage() {
                   </button>
                 </>
               )}
+            </div>
+        {isLoading ? (
+          <p className="text-center text-gray-500 text-sm sm:text-base">Loading timetable data...</p>
+        ) : timetableData.length > 0 ? (
+          <>
+            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="w-full sm:w-1/2">
+                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+              </div>
+              <div className="w-full sm:w-1/2">
+                <input
+                  type="text"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  placeholder="Filter by date (e.g., 2025-05-11)"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                />
+              </div>
             </div>
             <div className="overflow-x-auto">
               <TimetableTable
