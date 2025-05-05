@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import SearchBar from "../components/SearchBar";
 import TimetableTable from "../components/TimetableTable";
 import MiniTimetable from "../components/MiniTimetable";
@@ -11,19 +13,27 @@ function MainPage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [blockCodeFilter, setBlockCodeFilter] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const miniTimetableRef = useRef(null);
 
+  // Extract unique block codes for the filter dropdown
+  const uniqueBlockCodes = [...new Set(timetableData.map((exam) => exam.blockCode))]
+    .filter((code) => code && /^[A-Za-z][0-9]$/.test(code))
+    .sort();
+
   useEffect(() => {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "https://max-ease-manager.vercel.app/api/timetable";
+        const proxyUrl = "http://localhost:3001/timetable";
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error("Failed to fetch timetable from proxy");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch timetable: ${response.status} ${response.statusText}`);
+        }
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
         const workbook = XLSX.read(data, { type: "array" });
@@ -38,7 +48,9 @@ function MainPage() {
         if (headerRowIndex === -1) throw new Error("Header row with 'Block Code' not found.");
 
         const headers = jsonData[headerRowIndex];
-        const dataRows = jsonData.slice(headerRowIndex + 1).filter((row) => row.length > 0 && row[0]);
+        const dataRows = jsonData.slice(headerRowIndex + 1).filter(
+          (row) => row.length > 0 && row[0]
+        );
 
         const excelSerialToDate = (serial) => {
           if (typeof serial !== "number" || isNaN(serial)) return serial || "";
@@ -74,7 +86,9 @@ function MainPage() {
         setTimetableData(formattedData);
       } catch (error) {
         console.error("Error fetching timetable:", error);
-        alert("Failed to load timetable data. Please try again later.");
+        alert(
+          `Failed to load timetable data: ${error.message}. Please check your internet connection or ensure the backend server is running.`
+        );
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +118,11 @@ function MainPage() {
       ? exam.examsDate.toLowerCase().includes(dateFilter.toLowerCase())
       : true;
 
-    return matchesSearch && matchesDate;
+    const matchesBlockCode = blockCodeFilter
+      ? exam.blockCode.toLowerCase() === blockCodeFilter.toLowerCase()
+      : true;
+
+    return matchesSearch && matchesDate && matchesBlockCode;
   });
 
   const toggleCourseSelection = (exam) => {
@@ -160,7 +178,43 @@ function MainPage() {
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 animate-pulse tracking-wide">
           Exam Scheduling Made Easy
         </h3>
-        <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+        {isLoading ? (
+          <p className="text-center text-gray-500 text-sm sm:text-base">
+            Loading timetable data...
+          </p>
+        ) : timetableData.length > 0 ? (
+          <>
+            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="w-full sm:w-1/5">
+                <select
+                  value={blockCodeFilter}
+                  onChange={(e) => setBlockCodeFilter(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                >
+                  <option value="">All Block Codes</option>
+                  {uniqueBlockCodes.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-full sm:w-3/5">
+                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+              </div>
+              <div className="w-full sm:w-1/5">
+                <DatePicker
+                  selected={dateFilter ? new Date(dateFilter) : null}
+                  onChange={(date) =>
+                    setDateFilter(date ? date.toISOString().split("T")[0] : "")
+                  }
+                  placeholderText="Select exam date (e.g., 2025-05-11)"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                  dateFormat="yyyy-MM-dd"
+                />
+              </div>
+            </div>
+            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
               {selectedCourses.length > 0 && (
                 <>
                   <button
@@ -177,24 +231,6 @@ function MainPage() {
                   </button>
                 </>
               )}
-            </div>
-        {isLoading ? (
-          <p className="text-center text-gray-500 text-sm sm:text-base">Loading timetable data...</p>
-        ) : timetableData.length > 0 ? (
-          <>
-            <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
-              <div className="w-full sm:w-1/2">
-                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-              </div>
-              <div className="w-full sm:w-1/2">
-                <input
-                  type="text"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  placeholder="Filter by date (e.g., 2025-05-11)"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                />
-              </div>
             </div>
             <div className="overflow-x-auto">
               <TimetableTable
