@@ -119,7 +119,7 @@ function LectureTimetablePage() {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "http://localhost:3001/lecture-timetable";
+        const proxyUrl = "https://max-ease-manager.vercel.app/api/lecture-timetable";
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch timetable: ${response.status} ${response.statusText}`);
