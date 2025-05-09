@@ -3,12 +3,10 @@ import { Link } from "react-router-dom";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import SearchBar from "../components/exam/SearchBar";
-import TimetableTable from "../components/exam/TimetableTable";
-import MiniTimetable from "../components/exam/MiniTimetable";
-import HowToUseModal from "../components/exam/HowToUseModal";
+import SearchBar from "../components/lecture/SearchBar";
+import TimetableTable from "../components/lecture/TimetableTable";
+import MiniTimetable from "../components/lecture/MiniTimetable";
+import HowToUseModal from "../components/lecture/HowToUseModal";
 
 // Custom CSS for sheen effect
 const styles = `
@@ -41,11 +39,60 @@ const styles = `
   }
 `;
 
-function MainPage() {
+// Mapping of period values to display names
+const periodDisplayNames = {
+  "QUARTER 1-B1": "Quarter 1",
+  "QUARTER 2-B2": "Quarter 2",
+  "3RD SESSION": "Quarter 3",
+  "QUARTER 4": "Quarter 4",
+  "QUARTER 2-BB": "Quarter 2 (Sept)",
+  "QUARTER 3-BC": "Quarter 3 (Sept)",
+  "Semester 1": "Semester 1",
+  "Semester 2": "Semester 2",
+  "Trimester 2": "Trimester 2",
+  "Trimester 3": "Trimester 3",
+  "Trimester 3b": "Trimester 3B",
+  "Semester X1G": "EMBA/PhD Semester 1",
+  "Semester X2G": "EMBA/PhD Semester 2",
+  "Semester X3G": "EMBA/PhD Semester 3",
+  "DOSHEM": "DOSHEM",
+  "PGDPA": "PGDPA",
+  "MPSM": "MPSM",
+};
+
+// Extract unique periods and sort them with display names
+const getUniquePeriods = (data) => {
+  const periods = [...new Set(data.map((lecture) => lecture.Period))]
+    .filter((period) => period)
+    .sort((a, b) => {
+      const order = Object.keys(periodDisplayNames);
+      return order.indexOf(a) - order.indexOf(b);
+    });
+  return periods.map((period) => ({
+    value: period,
+    label: periodDisplayNames[period] || period,
+  }));
+};
+
+// Extract level from ProgrammeCode (e.g., "BSC101" -> 100, "MBA601" -> 600)
+const getLevelFromProgrammeCode = (programmeCode) => {
+  if (!programmeCode) return null;
+  const match = programmeCode.match(/\d{3}/);
+  if (match) {
+    const level = parseInt(match[0], 10);
+    if (level >= 100 && level <= 800 && level % 100 === 0) {
+      return level;
+    }
+  }
+  return null;
+};
+
+function LectureTimetablePage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
   const [blockCodeFilter, setBlockCodeFilter] = useState("");
+  const [periodFilter, setPeriodFilter] = useState("");
+  const [levelFilter, setLevelFilter] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -53,15 +100,26 @@ function MainPage() {
   const miniTimetableRef = useRef(null);
 
   // Extract unique block codes for the filter dropdown
-  const uniqueBlockCodes = [...new Set(timetableData.map((exam) => exam.blockCode))]
+  const uniqueBlockCodes = [...new Set(timetableData.map((lecture) => lecture.Block))]
     .filter((code) => code && /^[A-Za-z][0-9]$/.test(code))
     .sort();
 
+  // Extract unique periods for the filter dropdown
+  const uniquePeriods = getUniquePeriods(timetableData);
+
+  // Extract unique levels for the filter dropdown
+  const uniqueLevels = [
+    ...new Set(timetableData.map((lecture) => getLevelFromProgrammeCode(lecture.ProgrammeCode))),
+  ]
+    .filter((level) => level !== null)
+    .sort((a, b) => a - b);
+
   useEffect(() => {
+    // Fetching lecture timetable data from Google Drive via proxy
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "http://localhost:3001/exam-timetable";
+        const proxyUrl = "http://localhost:3001/lecture-timetable";
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch timetable: ${response.status} ${response.statusText}`);
@@ -75,45 +133,31 @@ function MainPage() {
         const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
 
         let headerRowIndex = jsonData.findIndex((row) =>
-          row.some((cell) => cell === "Block Code")
+          row.some((cell) => cell === "Course Code")
         );
-        if (headerRowIndex === -1) throw new Error("Header row with 'Block Code' not found.");
+        if (headerRowIndex === -1) throw new Error("Header row with 'Course Code' not found.");
 
         const headers = jsonData[headerRowIndex];
         const dataRows = jsonData.slice(headerRowIndex + 1).filter(
           (row) => row.length > 0 && row[0]
         );
 
-        const excelSerialToDate = (serial) => {
-          if (typeof serial !== "number" || isNaN(serial)) return serial || "";
-          const excelEpoch = new Date(Date.UTC(1900, 0, 0));
-          const daysOffset = serial - 1;
-          const date = new Date(excelEpoch.getTime() + daysOffset * 24 * 60 * 60 * 1000);
-          const year = date.getUTCFullYear();
-          const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-          const day = String(date.getUTCDate()).padStart(2, "0");
-          return `${year}-${month}-${day}`;
-        };
-
-        const formattedData = dataRows.map((row) => {
-          const rawDate = row[headers.indexOf("Exams Date")];
-          const examsDate = excelSerialToDate(rawDate);
-          return {
-            blockCode: row[headers.indexOf("Block Code")] || "",
-            examsDay: row[headers.indexOf("Exams Day")] || "",
-            examsDate: examsDate,
-            examsTime: row[headers.indexOf("Exams Time")] || "",
-            examsVenue: row[headers.indexOf("Exams Venue")] || "",
-            courseCode: row[headers.indexOf("Course Code")] || "",
-            courseName: row[headers.indexOf("Course Name")] || "",
-            period: row[headers.indexOf("Period")] || "",
-            mode: row[headers.indexOf("Mode")] || "",
-            programmeCode: row[headers.indexOf("Programme Code")] || "",
-            classSize: row[headers.indexOf("Class Size")] || 0,
-            lecturerName: row[headers.indexOf("Lecturer/Examiner Name")] || "",
-            combinedExams: row[headers.indexOf("Combined Exams")] || "",
-          };
-        });
+        const formattedData = dataRows
+          .map((row) => ({
+            CourseCode: row[headers.indexOf("Course Code")] || "",
+            CourseName: row[headers.indexOf("Course Name")] || "",
+            Period: row[headers.indexOf("Period")] || "",
+            Mode: row[headers.indexOf("Mode")] || "",
+            ProgrammeCode: row[headers.indexOf("Programme Code")] || "",
+            ClassSize: row[headers.indexOf("Class Size")] || 0,
+            CreditHours: row[headers.indexOf("CreditHours")] || 0,
+            LectureRoom: row[headers.indexOf("Lecture Room")] || "",
+            Time: row[headers.indexOf("Time")] || "",
+            LecturerName: row[headers.indexOf("Lecturer Name")] || "",
+            Day: row[headers.indexOf("Day")] || "",
+            Block: row[headers.indexOf("Block")] || "",
+          }))
+          .filter((lecture) => !lecture.Period.toLowerCase().includes("period"));
 
         setTimetableData(formattedData);
       } catch (error) {
@@ -137,33 +181,39 @@ function MainPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const filteredTimetable = timetableData.filter((exam) => {
+  const filteredTimetable = timetableData.filter((lecture) => {
     const matchesSearch = [
-      exam.courseName,
-      exam.courseCode,
-      exam.blockCode,
-      exam.lecturerName,
-      exam.programmeCode,
-    ].some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesDate = dateFilter
-      ? exam.examsDate.toLowerCase().includes(dateFilter.toLowerCase())
-      : true;
+      lecture.CourseName,
+      lecture.CourseCode,
+      lecture.Block,
+      lecture.LecturerName,
+      lecture.ProgrammeCode,
+      lecture.LectureRoom,
+      lecture.Day,
+    ].some((field) => field.toString().toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesBlockCode = blockCodeFilter
-      ? exam.blockCode.toLowerCase() === blockCodeFilter.toLowerCase()
+      ? lecture.Block.toLowerCase() === blockCodeFilter.toLowerCase()
       : true;
 
-    return matchesSearch && matchesDate && matchesBlockCode;
+    const matchesPeriod = periodFilter
+      ? lecture.Period.toLowerCase() === periodFilter.toLowerCase()
+      : true;
+
+    const matchesLevel = levelFilter
+      ? getLevelFromProgrammeCode(lecture.ProgrammeCode) === parseInt(levelFilter, 10)
+      : true;
+
+    return matchesSearch && matchesBlockCode && matchesPeriod && matchesLevel;
   });
 
-  const toggleCourseSelection = (exam) => {
+  const toggleCourseSelection = (lecture) => {
     setSelectedCourses((prev) => {
-      const isSelected = prev.some((course) => course.courseCode === exam.courseCode);
+      const isSelected = prev.some((course) => course.CourseCode === lecture.CourseCode);
       if (isSelected) {
-        return prev.filter((course) => course.courseCode !== exam.courseCode);
+        return prev.filter((course) => course.CourseCode !== lecture.CourseCode);
       } else {
-        return [...prev, exam];
+        return [...prev, lecture];
       }
     });
   };
@@ -171,7 +221,7 @@ function MainPage() {
   const selectAllCourses = () => {
     setSelectedCourses((prev) => {
       const newCourses = filteredTimetable.filter(
-        (exam) => !prev.some((course) => course.courseCode === exam.courseCode)
+        (lecture) => !prev.some((course) => course.CourseCode === lecture.CourseCode)
       );
       return [...prev, ...newCourses];
     });
@@ -187,7 +237,7 @@ function MainPage() {
       .toPng(miniTimetableRef.current)
       .then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = "mini_timetable.png";
+        link.download = "mini_lecture_timetable.png";
         link.href = dataUrl;
         link.click();
       })
@@ -215,7 +265,7 @@ function MainPage() {
       {/* Floating Header */}
       <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
-          GIMPA Exam Timetable
+          GIMPA Lecture Timetable
         </h1>
         <div className="flex gap-4 mt-4 sm:mt-0">
           <button
@@ -225,10 +275,10 @@ function MainPage() {
             How to Use
           </button>
           <Link
-            to="/lecture"
+            to="/exam"
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
           >
-            View Lecture Timetable
+            View Exam Timetable
           </Link>
         </div>
       </header>
@@ -236,7 +286,7 @@ function MainPage() {
       {/* Main content */}
       <div className="flex-1 pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6">
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 tracking-wide">
-          Exam Scheduling Made Easy
+          Lecture Scheduling Made Easy
         </h3>
         {isLoading ? (
           <p className="text-center text-gray-400 text-sm sm:text-base">
@@ -259,19 +309,36 @@ function MainPage() {
                   ))}
                 </select>
               </div>
-              <div className="w-full sm:w-3/5">
+              <div className="w-full sm:w-2/5">
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
               <div className="w-full sm:w-1/5">
-                <DatePicker
-                  selected={dateFilter ? new Date(dateFilter) : null}
-                  onChange={(date) =>
-                    setDateFilter(date ? date.toISOString().split("T")[0] : "")
-                  }
-                  placeholderText="Select exam date (e.g., 2025-05-11)"
+                <select
+                  value={periodFilter}
+                  onChange={(e) => setPeriodFilter(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
-                  dateFormat="yyyy-MM-dd"
-                />
+                >
+                  <option value="">All Periods</option>
+                  {uniquePeriods.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-full sm:w-1/5">
+                <select
+                  value={levelFilter}
+                  onChange={(e) => setLevelFilter(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
+                >
+                  <option value="">All Levels</option>
+                  {uniqueLevels.map((level) => (
+                    <option key={level} value={level}>
+                      Level {level}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="max-w-5xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
@@ -297,13 +364,14 @@ function MainPage() {
                 timetableData={filteredTimetable}
                 selectedCourses={selectedCourses}
                 toggleCourseSelection={toggleCourseSelection}
+                isLecture={true}
                 selectAllCourses={selectAllCourses}
                 deselectAllCourses={deselectAllCourses}
               />
             </div>
             {selectedCourses.length > 0 && (
               <div className="w-full px-4 sm:px-6 mt-8">
-                <MiniTimetable ref={miniTimetableRef} selectedCourses={selectedCourses} />
+                <MiniTimetable ref={miniTimetableRef} selectedCourses={selectedCourses} isLecture={true} />
               </div>
             )}
           </>
@@ -359,4 +427,4 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default LectureTimetablePage;

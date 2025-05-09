@@ -1,12 +1,40 @@
 import React from "react";
 
-function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection }) {
+function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection, selectAllCourses, deselectAllCourses }) {
+  const handleSelectAll = () => {
+    selectAllCourses();
+  };
+
+  const handleDeselectAll = () => {
+    deselectAllCourses();
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full bg-white shadow-md rounded-lg">
         <thead className="bg-blue-500 text-white">
           <tr>
-            <th className="p-3">Select</th>
+            <th className="p-3">
+              <div className="relative group">
+                <button className="w-full text-white bg-blue-500 hover:bg-blue-600 rounded px-2 py-1">
+                  Select
+                </button>
+                <div className="absolute hidden group-hover:block bg-white text-black rounded shadow-lg z-10">
+                  <button
+                    onClick={handleSelectAll}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={handleDeselectAll}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+            </th>
             <th className="p-3">Block</th>
             <th className="p-3">Day</th>
             <th className="p-3">Date</th>
@@ -14,7 +42,7 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection 
             <th className="p-3">Venue</th>
             <th className="p-3">Course Code</th>
             <th className="p-3">Course Name</th>
-            <th className="p-3 max-w-sx">Programme Code</th>
+            <th className="p-3 max-w-xs">Programme Code</th>
             <th className="p-3">Class Size</th>
             <th className="p-3">Lecturer</th>
           </tr>
@@ -25,7 +53,7 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection 
               <td className="p-3 text-center">
                 <input
                   type="checkbox"
-                  checked={selectedCourses.includes(exam)}
+                  checked={selectedCourses.some((course) => course.courseCode === exam.courseCode)}
                   onChange={() => toggleCourseSelection(exam)}
                 />
               </td>

@@ -12,7 +12,7 @@ function LandingPage() {
         Transform your exam chaos into seamless schedules with a single upload.
       </p>
 
-      <Link to="/timetable">
+      <Link to="/exam">
         <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-full shadow-lg hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-300">
           Get Started
         </button>
