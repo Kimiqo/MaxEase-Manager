@@ -18,13 +18,13 @@ export default async function handler(req, res) {
   console.log(`Processing path: ${path}`);
   let fileId;
 
-  if (path === 'exam-timetable') {
+  if (path === 'exam') {
     fileId = process.env.FILE_ID;
-  } else if (path === 'lecture-timetable') {
+  } else if (path === 'lecture') {
     fileId = process.env.LECTURE_FILE_ID;
   } else {
     console.error(`Invalid endpoint: ${path}`);
-    return res.status(400).json({ error: 'Invalid endpoint. Use /api/exam-timetable or /api/lecture-timetable' });
+    return res.status(400).json({ error: `Invalid endpoint for ${path}. Use /api/exam or /api/lecture` });
   }
 
   // Check if fileId is defined
