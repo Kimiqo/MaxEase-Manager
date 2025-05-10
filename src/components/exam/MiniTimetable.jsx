@@ -4,7 +4,7 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
   return (
     <div className="mt-8 w-full">
       <h2 className="text-2xl font-semibold mb-4">Your Mini-Timetable</h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#10b981] scrollbar-track-gray-200">
         <table
           ref={ref}
           className="w-full max-w-full bg-white shadow-md rounded-lg border border-gray-300 table-auto"
@@ -16,10 +16,10 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
               <th className="p-2 sm:p-3 text-left min-w-[80px]">Time</th>
               <th className="p-2 sm:p-3 text-left min-w-[80px]">Venue</th>
               <th className="p-2 sm:p-3 text-left min-w-[100px]">Course Code</th>
-              <th className="p-2 sm:p-3 text-left max-w-[150px] truncate">Course Name</th>
-              <th className="p-2 sm:p-3 text-left max-w-[120px] truncate">Programme Code</th>
-              <th className="p-2 sm:p-3 text-left min-w-[80px] hidden sm:table-cell">Class Size</th>
-              <th className="p-2 sm:p-3 text-left max-w-[120px] truncate hidden sm:table-cell">Lecturer</th>
+              <th className="p-2 sm:p-3 text-left min-w-[200px]">Course Name</th>
+              <th className="p-2 sm:p-3 text-left min-w-[120px]">Programme Code</th>
+              <th className="p-2 sm:p-3 text-left min-w-[80px]">Class Size</th>
+              <th className="p-2 sm:p-3 text-left min-w-[120px]">Lecturer</th>
             </tr>
           </thead>
           <tbody>
@@ -30,10 +30,10 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
                 <td className="p-2 sm:p-3">{exam.examsTime}</td>
                 <td className="p-2 sm:p-3">{exam.examsVenue}</td>
                 <td className="p-2 sm:p-3">{exam.courseCode}</td>
-                <td className="p-2 sm:p-3 max-w-[150px] truncate">{exam.courseName}</td>
-                <td className="p-2 sm:p-3 max-w-[120px] truncate">{exam.programmeCode}</td>
-                <td className="p-2 sm:p-3 hidden sm:table-cell">{exam.classSize}</td>
-                <td className="p-2 sm:p-3 max-w-[120px] truncate hidden sm:table-cell">{exam.lecturerName}</td>
+                <td className="p-2 sm:p-3">{exam.courseName}</td>
+                <td className="p-2 sm:p-3">{exam.programmeCode}</td>
+                <td className="p-2 sm:p-3">{exam.classSize}</td>
+                <td className="p-2 sm:p-3">{exam.lecturerName}</td>
               </tr>
             ))}
           </tbody>
