@@ -11,7 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/exam" element={<MainPage />} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/lecture" element={<LectureTimetablePage />} />
       </Routes>
               {/* Vercel Speed Insights and Analytics*/}

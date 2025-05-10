@@ -1,17 +1,21 @@
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  // Enable CORS for production and local development
+  console.log(`Request received: ${req.url}, Method: ${req.method}`);
+
+  // Enable CORS for production
   res.setHeader('Access-Control-Allow-Origin', 'https://max-ease-manager.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
   // Only allow GET requests
   if (req.method !== 'GET') {
+    console.error(`Invalid method: ${req.method}`);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   // Determine which timetable to fetch based on the path
   const path = req.url.split('/').pop();
+  console.log(`Processing path: ${path}`);
   let fileId;
 
   if (path === 'exam-timetable') {
@@ -19,15 +23,18 @@ export default async function handler(req, res) {
   } else if (path === 'lecture-timetable') {
     fileId = process.env.LECTURE_FILE_ID;
   } else {
+    console.error(`Invalid endpoint: ${path}`);
     return res.status(400).json({ error: 'Invalid endpoint. Use /api/exam-timetable or /api/lecture-timetable' });
   }
 
   // Check if fileId is defined
   if (!fileId) {
+    console.error(`Missing file ID for ${path}`);
     return res.status(500).json({ error: 'Server configuration error: Missing file ID' });
   }
 
   const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  console.log(`Fetching file from: ${fileUrl}`);
 
   try {
     const response = await fetch(fileUrl);
@@ -36,54 +43,10 @@ export default async function handler(req, res) {
     }
     const buffer = await response.buffer();
     res.setHeader('Content-Type', 'application/octet-stream');
+    console.log(`Successfully fetched file for ${path}`);
     return res.status(200).send(buffer);
   } catch (error) {
     console.error(`Error fetching file for ${path}:`, error);
     return res.status(500).json({ error: 'Failed to fetch timetable file' });
   }
 }
-
-// import express from "express";
-// import fetch from "node-fetch";
-// import "dotenv/config";
-
-// const app = express();
-
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "http://localhost:5173");
-//   res.header("Access-Control-Allow-Methods", "GET");
-//   next();
-// });
-
-// app.get("/exam-timetable", async (req, res) => {
-//   const fileUrl = `https://drive.google.com/uc?export=download&id=${process.env.FILE_ID}`;
-//   try {
-//     const response = await fetch(fileUrl);
-//     if (!response.ok) throw new Error("Failed to fetch file");
-//     const buffer = await response.buffer();
-//     res.setHeader("Content-Type", "application/octet-stream");
-//     res.status(200).send(buffer);
-//   } catch (error) {
-//     console.error("Error fetching file:", error);
-//     res.status(500).send("Failed to fetch timetable file");
-//   }
-// });
-
-// app.get("/lecture-timetable", async (req, res) => {
-//   const fileUrl = `https://drive.google.com/uc?export=download&id=${process.env.LECTURE_FILE_ID}`;
-//   try {
-//     const response = await fetch(fileUrl);
-//     if (!response.ok) throw new Error("Failed to fetch file");
-//     const buffer = await response.buffer();
-//     res.setHeader("Content-Type", "application/octet-stream");
-//     res.status(200).send(buffer);
-//   } catch (error) {
-//     console.error("Error fetching file:", error);
-//     res.status(500).send("Failed to fetch timetable file");
-//   }
-// })
-
-// const PORT = 3001;
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
