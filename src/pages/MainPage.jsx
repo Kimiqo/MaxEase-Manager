@@ -61,10 +61,13 @@ function MainPage() {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "https://max-ease-manager.vercel.app/api/exam-timetable";
+        const proxyUrl = 'https://max-ease-manager.vercel.app/api/exam-timetable';
+        console.log(`Fetching exam timetable from: ${proxyUrl}`);
         const response = await fetch(proxyUrl);
         if (!response.ok) {
-          throw new Error(`Failed to fetch timetable: ${response.status} ${response.statusText}`);
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.error || `${response.status} ${response.statusText}`;
+          throw new Error(`Failed to fetch timetable: ${errorMessage}`);
         }
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);

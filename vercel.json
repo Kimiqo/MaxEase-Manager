@@ -1,7 +1,11 @@
 {
     "rewrites": [
       {
-        "source": "/api/:path*",
+        "source": "/api/exam-timetable",
+        "destination": "/api/timetable"
+      },
+      {
+        "source": "/api/lecture-timetable",
         "destination": "/api/timetable"
       },
       {

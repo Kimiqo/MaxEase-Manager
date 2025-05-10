@@ -13,24 +13,25 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Determine which timetable to fetch based on the path
-  const path = req.url.split('/').pop();
-  console.log(`Processing path: ${path}`);
-  let fileId;
+  // Extract path from req.url (e.g., /api/exam-timetable -> exam-timetable)
+  const urlPath = req.url.split('?')[0]; // Remove query parameters
+  const path = urlPath.replace(/^\/api\//, '').replace(/\/$/, ''); // Remove /api/ prefix and trailing slash
+  console.log(`Extracted path: ${path}`);
 
-  if (path === 'exam') {
+  let fileId;
+  if (path === 'exam-timetable') {
     fileId = process.env.FILE_ID;
-  } else if (path === 'lecture') {
+  } else if (path === 'lecture-timetable') {
     fileId = process.env.LECTURE_FILE_ID;
   } else {
     console.error(`Invalid endpoint: ${path}`);
-    return res.status(400).json({ error: `Invalid endpoint for ${path}. Use /api/exam or /api/lecture` });
+    return res.status(400).json({ error: 'Invalid endpoint. Use /api/exam-timetable or /api/lecture-timetable' });
   }
 
   // Check if fileId is defined
   if (!fileId) {
     console.error(`Missing file ID for ${path}`);
-    return res.status(500).json({ error: 'Server configuration error: Missing file ID' });
+    return res.status(500).json({ error: `Server configuration error: Missing ${path === 'exam-timetable' ? 'FILE_ID' : 'LECTURE_FILE_ID'}` });
   }
 
   const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
@@ -47,6 +48,6 @@ export default async function handler(req, res) {
     return res.status(200).send(buffer);
   } catch (error) {
     console.error(`Error fetching file for ${path}:`, error);
-    return res.status(500).json({ error: 'Failed to fetch timetable file' });
+    return res.status(500).json({ error: `Failed to fetch ${path} file: ${error.message}` });
   }
 }
