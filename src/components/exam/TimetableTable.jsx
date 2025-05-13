@@ -48,12 +48,12 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection,
           </tr>
         </thead>
         <tbody>
-          {timetableData.map((exam, index) => (
-            <tr key={index} className="border-b hover:bg-gray-50">
+          {timetableData.map((exam) => (
+            <tr key={exam.id} className="border-b hover:bg-gray-50">
               <td className="p-3 text-center">
                 <input
                   type="checkbox"
-                  checked={selectedCourses.some((course) => course.courseCode === exam.courseCode)}
+                  checked={selectedCourses.some((course) => course.id === exam.id)}
                   onChange={() => toggleCourseSelection(exam)}
                 />
               </td>
