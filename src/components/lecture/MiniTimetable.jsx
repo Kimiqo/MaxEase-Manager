@@ -8,7 +8,8 @@ const MiniTimetable = forwardRef(({ selectedCourses, isLecture }, ref) => {
         <table
           ref={ref}
           className="w-full max-w-full bg-white shadow-md rounded-lg border border-gray-300 table-auto"
-        >
+        > 
+        {/* Fixed truncation */}
           <thead className="bg-[#10b981] text-white">
             <tr>
               <th className="p-2 sm:p-3 text-left min-w-[80px]">Day</th>
