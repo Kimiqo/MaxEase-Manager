@@ -146,7 +146,8 @@ function LectureTimetablePage() {
         );
 
         const formattedData = dataRows
-          .map((row) => ({
+          .map((row, index) => ({
+            id: `lecture_${index}`, // Unique ID
             CourseCode: row[headers.indexOf("Course Code")] || "",
             CourseName: row[headers.indexOf("Course Name")] || "",
             Period: row[headers.indexOf("Period")] || "",
@@ -212,9 +213,9 @@ function LectureTimetablePage() {
 
   const toggleCourseSelection = (lecture) => {
     setSelectedCourses((prev) => {
-      const isSelected = prev.some((course) => course.CourseCode === lecture.CourseCode);
+      const isSelected = prev.some((course) => course.id === lecture.id);
       if (isSelected) {
-        return prev.filter((course) => course.CourseCode !== lecture.CourseCode);
+        return prev.filter((course) => course.id !== lecture.id);
       } else {
         return [...prev, lecture];
       }
@@ -224,7 +225,7 @@ function LectureTimetablePage() {
   const selectAllCourses = () => {
     setSelectedCourses((prev) => {
       const newCourses = filteredTimetable.filter(
-        (lecture) => !prev.some((course) => course.CourseCode === lecture.CourseCode)
+        (lecture) => !prev.some((course) => course.id === lecture.id)
       );
       return [...prev, ...newCourses];
     });
@@ -262,11 +263,11 @@ function LectureTimetablePage() {
   const closeModal = () => setShowModal(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
       {/* Inject custom styles */}
       <style>{styles}</style>
       {/* Floating Header */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
+      <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
           GIMPA Lecture Timetable
         </h1>
@@ -386,7 +387,7 @@ function LectureTimetablePage() {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
+      <footer className="fixed bottom-0 left-0 w-full max-w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
         <p className="flex justify-center items-center gap-4">
           Developed by Michael Darko • © {new Date().getFullYear()}
           <a

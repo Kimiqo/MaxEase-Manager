@@ -98,10 +98,11 @@ function MainPage() {
           return `${year}-${month}-${day}`;
         };
 
-        const formattedData = dataRows.map((row) => {
+        const formattedData = dataRows.map((row, index) => {
           const rawDate = row[headers.indexOf("Exams Date")];
           const examsDate = excelSerialToDate(rawDate);
           return {
+            id: `exam_${index}`, // Unique ID
             blockCode: row[headers.indexOf("Block Code")] || "",
             examsDay: row[headers.indexOf("Exams Day")] || "",
             examsDate: examsDate,
@@ -162,9 +163,9 @@ function MainPage() {
 
   const toggleCourseSelection = (exam) => {
     setSelectedCourses((prev) => {
-      const isSelected = prev.some((course) => course.courseCode === exam.courseCode);
+      const isSelected = prev.some((course) => course.id === exam.id);
       if (isSelected) {
-        return prev.filter((course) => course.courseCode !== exam.courseCode);
+        return prev.filter((course) => course.id !== exam.id);
       } else {
         return [...prev, exam];
       }
@@ -174,7 +175,7 @@ function MainPage() {
   const selectAllCourses = () => {
     setSelectedCourses((prev) => {
       const newCourses = filteredTimetable.filter(
-        (exam) => !prev.some((course) => course.courseCode === exam.courseCode)
+        (exam) => !prev.some((course) => course.id === exam.id)
       );
       return [...prev, ...newCourses];
     });
@@ -212,11 +213,11 @@ function MainPage() {
   const closeModal = () => setShowModal(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
       {/* Inject custom styles */}
       <style>{styles}</style>
       {/* Floating Header */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
+      <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
           GIMPA Exam Timetable
         </h1>
@@ -318,7 +319,7 @@ function MainPage() {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
+      <footer className="fixed bottom-0 left-0 w-full max-w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
         <p className="flex justify-center items-center gap-4">
           Developed by Michael Darko • © {new Date().getFullYear()}
           <a

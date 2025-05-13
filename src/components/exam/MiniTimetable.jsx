@@ -11,7 +11,6 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
         >
           <thead className="bg-[#10b981] text-white">
             <tr>
-              {/* Fixed truncation */}
               <th className="p-2 sm:p-3 text-left min-w-[80px]">Day</th>
               <th className="p-2 sm:p-3 text-left min-w-[100px]">Date</th>
               <th className="p-2 sm:p-3 text-left min-w-[80px]">Time</th>
@@ -24,8 +23,8 @@ const MiniTimetable = forwardRef(({ selectedCourses }, ref) => {
             </tr>
           </thead>
           <tbody>
-            {selectedCourses.map((exam, index) => (
-              <tr key={index} className="border-b">
+            {selectedCourses.map((exam) => (
+              <tr key={exam.id} className="border-b">
                 <td className="p-2 sm:p-3">{exam.examsDay}</td>
                 <td className="p-2 sm:p-3">{exam.examsDate}</td>
                 <td className="p-2 sm:p-3">{exam.examsTime}</td>
