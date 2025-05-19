@@ -119,8 +119,8 @@ function LectureTimetablePage() {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        // const proxyUrl = "https://max-ease-manager.vercel.app/api/exam-timetable";
-        const proxyUrl = "http://localhost:3001/exam-timetable";
+        // const proxyUrl = "https://max-ease-manager.vercel.app/api/lecture-timetable";
+        const proxyUrl = "http://localhost:3001/lecture-timetable";
         console.log(`Fetching lecture timetable from: ${proxyUrl}`);
         const response = await fetch(proxyUrl);
         if (!response.ok) {
@@ -149,18 +149,18 @@ function LectureTimetablePage() {
         const formattedData = dataRows
           .map((row, index) => ({
             id: `lecture_${index}`, // Unique ID
-            CourseCode: row[headers.indexOf("Course Code")] || "",
-            CourseName: row[headers.indexOf("Course Name")] || "",
-            Period: row[headers.indexOf("Period")] || "",
-            Mode: row[headers.indexOf("Mode")] || "",
-            ProgrammeCode: row[headers.indexOf("Programme Code")] || "",
-            ClassSize: row[headers.indexOf("Class Size")] || 0,
-            CreditHours: row[headers.indexOf("CreditHours")] || 0,
-            LectureRoom: row[headers.indexOf("Lecture Room")] || "",
-            Time: row[headers.indexOf("Time")] || "",
-            LecturerName: row[headers.indexOf("Lecturer Name")] || "",
-            Day: row[headers.indexOf("Day")] || "",
-            Block: row[headers.indexOf("Block")] || "",
+            CourseCode: row[headers.indexOf("Course Code")] || "N/A",
+            CourseName: row[headers.indexOf("Course Name")] || "N/A",
+            Period: row[headers.indexOf("Period")] || "N/A",
+            Mode: row[headers.indexOf("Mode")] || "N/A",
+            ProgrammeCode: row[headers.indexOf("Programme Code")] || "N/A",
+            ClassSize: row[headers.indexOf("Class Size")] || 0, // Keep 0 as fallback for numbers
+            CreditHours: row[headers.indexOf("CreditHours ")] || "3", // Use "N/A" for missing credit hours
+            LectureRoom: row[headers.indexOf("Lecture Room")] || "TBA", // Use "TBA" for missing lecture room
+            Time: row[headers.indexOf("Time")] || "Not Scheduled", // Use "Not Scheduled" for missing time
+            LecturerName: row[headers.indexOf("Lecturer Name")] || "TBA", // Use "TBA" for missing lecturer
+            Day: row[headers.indexOf("Day")] || "Not Scheduled", // Use "Not Scheduled" for missing day
+            Block: row[headers.indexOf("Block")] || "TBA", // Use "TBA" for missing block
           }))
           .filter((lecture) => !lecture.Period.toLowerCase().includes("period"));
 
