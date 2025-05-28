@@ -87,12 +87,15 @@ const getLevelFromProgrammeCode = (programmeCode) => {
   return null;
 };
 
+const weekOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "FRI - SUN"];
+
 function LectureTimetablePage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [blockCodeFilter, setBlockCodeFilter] = useState("");
   const [periodFilter, setPeriodFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
+  const [dayFilter, setDayFilter] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -113,6 +116,11 @@ function LectureTimetablePage() {
   ]
     .filter((level) => level !== null)
     .sort((a, b) => a - b);
+
+  // Extract unique days for the filter dropdown
+  const uniqueDays = [...new Set(timetableData.map((lecture) => lecture.Day))]
+    .filter((day) => day && (weekOrder.includes(day)))
+    .sort((a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b));
 
   useEffect(() => {
     // Fetching lecture timetable data from Google Drive via proxy
@@ -209,7 +217,11 @@ function LectureTimetablePage() {
       ? getLevelFromProgrammeCode(lecture.ProgrammeCode) === parseInt(levelFilter, 10)
       : true;
 
-    return matchesSearch && matchesBlockCode && matchesPeriod && matchesLevel;
+    const matchesDay = dayFilter
+      ? lecture.Day === dayFilter
+      : true; // New day filter logic
+
+    return matchesSearch && matchesBlockCode && matchesPeriod && matchesLevel && matchesDay;
   });
 
   const toggleCourseSelection = (lecture) => {
@@ -341,6 +353,20 @@ function LectureTimetablePage() {
                   {uniqueLevels.map((level) => (
                     <option key={level} value={level}>
                       Level {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-full sm:w-1/5">
+                <select
+                  value={dayFilter}
+                  onChange={(e) => setDayFilter(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
+                >
+                  <option value="">All Days</option>
+                  {uniqueDays.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
                     </option>
                   ))}
                 </select>
