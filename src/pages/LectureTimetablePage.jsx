@@ -89,6 +89,17 @@ const getLevelFromProgrammeCode = (programmeCode) => {
 
 const weekOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "FRI - SUN"];
 
+const blockCodes = [
+  "A1", "A2", "A5", "A6",
+  "B1", "B2", "B3", "B4",
+  "BA", "BB", "BC", "BD",
+  "F1", "F2",
+  "JA", "JB", "JK",
+  "T1", "T2", "T3",
+  "TA", "TB", "TC",
+  "X1", "X2"
+].sort();
+
 function LectureTimetablePage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,9 +114,7 @@ function LectureTimetablePage() {
   const miniTimetableRef = useRef(null);
 
   // Extract unique block codes for the filter dropdown
-  const uniqueBlockCodes = [...new Set(timetableData.map((lecture) => lecture.Block))]
-    .filter((code) => code && /^[A-Za-z][0-9]$/.test(code))
-    .sort();
+  const uniqueBlockCodes = blockCodes;
 
   // Extract unique periods for the filter dropdown
   const uniquePeriods = getUniquePeriods(timetableData);
