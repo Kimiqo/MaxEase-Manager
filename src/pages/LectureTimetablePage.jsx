@@ -39,39 +39,58 @@ const styles = `
   }
 `;
 
-// Mapping of period values to display names
-const periodDisplayNames = {
-  "QUARTER 1-B1": "Quarter 1",
-  "QUARTER 2-B2": "Quarter 2",
-  "3RD SESSION": "Quarter 3",
-  "QUARTER 4": "Quarter 4",
-  "QUARTER 2-BB": "Quarter 2 (Sept)",
-  "QUARTER 3-BC": "Quarter 3 (Sept)",
-  "Semester 1": "Semester 1",
-  "Semester 2": "Semester 2",
-  "Trimester 2": "Trimester 2",
-  "Trimester 3": "Trimester 3",
-  "Trimester 3b": "Trimester 3B",
-  "Semester X1G": "EMBA/PhD Semester 1",
-  "Semester X2G": "EMBA/PhD Semester 2",
-  "Semester X3G": "EMBA/PhD Semester 3",
-  "DOSHEM": "DOSHEM",
-  "PGDPA": "PGDPA",
-  "MPSM": "MPSM",
+// Mapping of block codes to periods based on ITS BLOCKS_edited4Michael.xlsx
+const blockToPeriod = {
+  "A1": "SEMESTER 1",
+  "A2": "SEMESTER 2",
+  "A5": "SEMESTER 1",
+  "A6": "SEMESTER 2",
+  "B1": "QUARTER 1",
+  "B2": "QUARTER 2",
+  "B3": "QUARTER 3",
+  "B4": "QUARTER 4",
+  "BA": "QUARTER 1 REGULAR",
+  "BB": "QUARTER 2 REGULAR",
+  "BC": "QUARTER 3 REGULAR",
+  "BD": "QUARTER 4 REGULAR",
+  "F1": "SEMESTER 1",
+  "F2": "SEMESTER 2",
+  "JA": "MODULAR SESSION 1",
+  "JB": "MODULAR SESSION 2",
+  "JK": "MODULAR SESSION 3 FINAL",
+  "T1": "TRIMESTER 1",
+  "T2": "TRIMESTER 2",
+  "T3": "TRIMESTER 3",
+  "TA": "TRIMESTER 1 (REGULAR)",
+  "TB": "TRIMESTER 2 (REGULAR)",
+  "TC": "TRIMESTER 3 (REGULAR)",
+  "X1": "SESSION 1",
+  "X2": "SESSION 2",
 };
 
-// Extract unique periods and sort them with display names
-const getUniquePeriods = (data) => {
-  const periods = [...new Set(data.map((lecture) => lecture.Period))]
-    .filter((period) => period)
-    .sort((a, b) => {
-      const order = Object.keys(periodDisplayNames);
-      return order.indexOf(a) - order.indexOf(b);
-    });
-  return periods.map((period) => ({
-    value: period,
-    label: periodDisplayNames[period] || period,
-  }));
+// Mapping of period values to display names
+const periodDisplayNames = {
+  "QUARTER 1": "Quarter 1",
+  "QUARTER 2": "Quarter 2",
+  "QUARTER 3": "Quarter 3",
+  "QUARTER 4": "Quarter 4",
+  "QUARTER 1 REGULAR": "Quarter 1 (Regular)",
+  "QUARTER 2 REGULAR": "Quarter 2 (Regular)",
+  "QUARTER 3 REGULAR": "Quarter 3 (Regular)",
+  "QUARTER 4 REGULAR": "Quarter 4 (Regular)",
+  "SEMESTER 1": "Semester 1",
+  "SEMESTER 2": "Semester 2",
+  "MODULAR SESSION 1": "Modular Session 1",
+  "MODULAR SESSION 2": "Modular Session 2",
+  "MODULAR SESSION 3 FINAL": "Modular Session 3 (Final)",
+  "TRIMESTER 1": "Trimester 1",
+  "TRIMESTER 2": "Trimester 2",
+  "TRIMESTER 3": "Trimester 3",
+  "TRIMESTER 1 (REGULAR)": "Trimester 1 (Regular)",
+  "TRIMESTER 2 (REGULAR)": "Trimester 2 (Regular)",
+  "TRIMESTER 3 (REGULAR)": "Trimester 3 (Regular)",
+  "SESSION 1": "Session 1",
+  "SESSION 2": "Session 2",
 };
 
 // Extract level from ProgrammeCode (e.g., "BSC101" -> 100, "MBA601" -> 600)
@@ -80,7 +99,7 @@ const getLevelFromProgrammeCode = (programmeCode) => {
   const match = programmeCode.match(/\d{3}/);
   if (match) {
     const level = parseInt(match[0], 10);
-    if (level >= 100 && level <= 800 && level % 100 === 0) {
+    if (level >= 100 && level <= 900 && level % 100 === 0) {
       return level;
     }
   }
@@ -104,7 +123,6 @@ function LectureTimetablePage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [blockCodeFilter, setBlockCodeFilter] = useState("");
-  const [periodFilter, setPeriodFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [dayFilter, setDayFilter] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
@@ -115,9 +133,6 @@ function LectureTimetablePage() {
 
   // Extract unique block codes for the filter dropdown
   const uniqueBlockCodes = blockCodes;
-
-  // Extract unique periods for the filter dropdown
-  const uniquePeriods = getUniquePeriods(timetableData);
 
   // Extract unique levels for the filter dropdown
   const uniqueLevels = [
@@ -163,21 +178,24 @@ function LectureTimetablePage() {
         );
 
         const formattedData = dataRows
-          .map((row, index) => ({
-            id: `lecture_${index}`, // Unique ID
-            CourseCode: row[headers.indexOf("Course Code")] || "N/A",
-            CourseName: row[headers.indexOf("Course Name")] || "N/A",
-            Period: row[headers.indexOf("Period")] || "N/A",
-            Mode: row[headers.indexOf("Mode")] || "N/A",
-            ProgrammeCode: row[headers.indexOf("Programme Code")] || "N/A",
-            ClassSize: row[headers.indexOf("Class Size")] || 0, // Keep 0 as fallback for numbers
-            CreditHours: row[headers.indexOf("CreditHours ")] || "3", // Use "N/A" for missing credit hours
-            LectureRoom: row[headers.indexOf("Lecture Room")] || "TBA", // Use "TBA" for missing lecture room
-            Time: row[headers.indexOf("Time")] || "Not Scheduled", // Use "Not Scheduled" for missing time
-            LecturerName: row[headers.indexOf("Lecturer Name")] || "TBA", // Use "TBA" for missing lecturer
-            Day: row[headers.indexOf("Day")] || "Not Scheduled", // Use "Not Scheduled" for missing day
-            Block: row[headers.indexOf("Block")] || "TBA", // Use "TBA" for missing block
-          }))
+          .map((row, index) => {
+            const block = row[headers.indexOf("Block")] || "TBA";
+            return {
+              id: `lecture_${index}`, // Unique ID
+              CourseCode: row[headers.indexOf("Course Code")] || "N/A",
+              CourseName: row[headers.indexOf("Course Name")] || "N/A",
+              Period: blockToPeriod[block] || "N/A", // Set period based on block code
+              Mode: row[headers.indexOf("Mode")] || "N/A",
+              ProgrammeCode: row[headers.indexOf("Programme Code")] || "N/A",
+              ClassSize: row[headers.indexOf("Class Size")] || 0, // Keep 0 as fallback for numbers
+              CreditHours: row[headers.indexOf("CreditHours")] || "3", // Use "3" as fallback for missing credit hours
+              LectureRoom: row[headers.indexOf("Lecture Room")] || "TBA", // Use "TBA" for missing lecture room
+              Time: row[headers.indexOf("Time")] || "Not Scheduled", // Use "Not Scheduled" for missing time
+              LecturerName: row[headers.indexOf("Lecturer Name")] || "TBA", // Use "TBA" for missing lecturer
+              Day: row[headers.indexOf("Day")] || "Not Scheduled", // Use "Not Scheduled" for missing day
+              Block: block, // Use the block value directly
+            };
+          })
           .filter((lecture) => !lecture.Period.toLowerCase().includes("period"));
 
         setTimetableData(formattedData);
@@ -217,19 +235,15 @@ function LectureTimetablePage() {
       ? lecture.Block.toLowerCase() === blockCodeFilter.toLowerCase()
       : true;
 
-    const matchesPeriod = periodFilter
-      ? lecture.Period.toLowerCase() === periodFilter.toLowerCase()
-      : true;
-
     const matchesLevel = levelFilter
       ? getLevelFromProgrammeCode(lecture.ProgrammeCode) === parseInt(levelFilter, 10)
       : true;
 
     const matchesDay = dayFilter
       ? lecture.Day === dayFilter
-      : true; // New day filter logic
+      : true;
 
-    return matchesSearch && matchesBlockCode && matchesPeriod && matchesLevel && matchesDay;
+    return matchesSearch && matchesBlockCode && matchesLevel && matchesDay;
   });
 
   const toggleCourseSelection = (lecture) => {
@@ -319,7 +333,7 @@ function LectureTimetablePage() {
           </p>
         ) : timetableData.length > 0 ? (
           <>
-            <div className="max-w-5xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="max-w-6xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
               <div className="w-full sm:w-1/5">
                 <select
                   value={blockCodeFilter}
@@ -338,18 +352,12 @@ function LectureTimetablePage() {
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
               <div className="w-full sm:w-1/5">
-                <select
-                  value={periodFilter}
-                  onChange={(e) => setPeriodFilter(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
+                {/* Faux dropdown for period (read-only) */}
+                <div
+                  className="w-full p-3 border border-gray-300 rounded-lg text-sm sm:text-base backdrop-blur-sm bg-gray-100 overflow-hidden whitespace-normal break-words"
                 >
-                  <option value="">All Periods</option>
-                  {uniquePeriods.map(({ value, label }) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
+                  {`Period: ${blockCodeFilter ? periodDisplayNames[blockToPeriod[blockCodeFilter]] || "N/A" : "N/A"}`}
+                </div>
               </div>
               <div className="w-full sm:w-1/5">
                 <select
