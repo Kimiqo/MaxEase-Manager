@@ -65,7 +65,7 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection,
               <td className="p-3">{isLecture ? course.LectureRoom : course.examsVenue}</td>
               <td className="p-3">{isLecture ? course.CourseCode : course.courseCode}</td>
               <td className="p-3">{isLecture ? course.CourseName : course.courseName}</td>
-              <td className="p-3 truncate max-w-xs">{isLecture ? course.ProgrammeCode : course.programmeCode}</td>
+              <td className="p-3 break-words max-w-xs">{isLecture ? course.ProgrammeCode : course.programmeCode}</td>
               <td className="p-3">{isLecture ? course.ClassSize : course.classSize}</td>
               <td className="p-3">{isLecture ? course.LecturerName : course.lecturerName}</td>
               <td className="p-3">{isLecture ? course.Period : course.mode}</td>
