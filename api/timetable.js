@@ -18,11 +18,16 @@ export default async function handler(req, res) {
   const path = urlPath.replace(/^\/api\//, '').replace(/\/$/, ''); // Remove /api/ prefix and trailing slash
   console.log(`Extracted path: ${path}`);
 
+  // Parse query parameters
+  const urlParams = new URLSearchParams(req.url.split('?')[1] || '');
+  const campus = urlParams.get('campus') || 'accra'; // Default to Accra
+  console.log(`Extracted campus: ${campus}`);
+
   let fileId;
   if (path === 'exam-timetable') {
-    fileId = process.env.FILE_ID;
+    fileId = process.env[`EXAM_FILE_ID_${campus.toUpperCase()}`];
   } else if (path === 'lecture-timetable') {
-    fileId = process.env.LECTURE_FILE_ID;
+    fileId = process.env[`LECTURE_FILE_ID_${campus.toUpperCase()}`];
   } else {
     console.error(`Invalid endpoint: ${path}`);
     return res.status(400).json({ error: 'Invalid endpoint. Use /api/exam-timetable or /api/lecture-timetable' });
@@ -30,8 +35,8 @@ export default async function handler(req, res) {
 
   // Check if fileId is defined
   if (!fileId) {
-    console.error(`Missing file ID for ${path}`);
-    return res.status(500).json({ error: `Server configuration error: Missing ${path === 'exam-timetable' ? 'FILE_ID' : 'LECTURE_FILE_ID'}` });
+    console.error(`Missing file ID for ${path} at ${campus}`);
+    return res.status(500).json({ error: `Server configuration error: Missing ${path === 'exam-timetable' ? `EXAM_FILE_ID_${campus.toUpperCase()}` : `LECTURE_FILE_ID_${campus.toUpperCase()}`}` });
   }
 
   const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
@@ -44,10 +49,10 @@ export default async function handler(req, res) {
     }
     const buffer = await response.buffer();
     res.setHeader('Content-Type', 'application/octet-stream');
-    console.log(`Successfully fetched file for ${path}`);
+    console.log(`Successfully fetched file for ${path} at ${campus}`);
     return res.status(200).send(buffer);
   } catch (error) {
-    console.error(`Error fetching file for ${path}:`, error);
-    return res.status(500).json({ error: `Failed to fetch ${path} file: ${error.message}` });
+    console.error(`Error fetching file for ${path} at ${campus}:`, error);
+    return res.status(500).json({ error: `Failed to fetch ${path} file for ${campus}: ${error.message}` });
   }
 }
