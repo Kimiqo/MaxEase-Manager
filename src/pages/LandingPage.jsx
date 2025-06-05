@@ -1,19 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaUniversity } from "react-icons/fa";
+import { FaUniversity, FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
 
 function LandingPage() {
   const campuses = [
-    { name: "Accra", icon: FaMapMarkerAlt, path: "/lecture?campus=accra" },
-    { name: "Tema", icon: FaUniversity, path: "/lecture?campus=tema" },
-    { name: "Kumasi", icon: FaMapMarkerAlt, path: "/lecture?campus=kumasi" },
-    { name: "Takoradi", icon: FaUniversity, path: "/lecture?campus=takoradi" },
+    { name: "Accra - Greenhill Campus", icon: FaUniversity, path: "/lecture?campus=accra" },
+    { name: "Tema Campus", icon: FaUniversity, path: "/lecture?campus=tema" },
+    { name: "Kumasi Campus", icon: FaUniversity, path: "/lecture?campus=kumasi" },
+    { name: "Takoradi Campus", icon: FaUniversity, path: "/lecture?campus=takoradi" },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center text-white p-6">
       <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400 animate-pulse">
-        MaxEase
+        MaxEase Manager
       </h1>
       
       <p className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mb-8">
@@ -46,23 +46,30 @@ function LandingPage() {
         </button>
       </Link>
 
-      <footer className="mt-12 text-gray-400 text-sm">
-        <p>
-          Developed by Michael Darko • © {new Date().getFullYear()}{" "}
+      <footer className="mt-12 text-white text-sm">
+        <p className="flex justify-center items-center gap-4">
+          Developed by Michael Darko • © {new Date().getFullYear()}
           <a
             href="https://github.com/Kimiqo"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline"
+            className="text-blue-400 hover:text-blue-300"
           >
-            GitHub
-          </a>{" "}
-          {" "}
+            <FaGithub size={20} />
+          </a>
           <a
             href="mailto:michael12darko@gmail.com"
-            className="text-blue-400 hover:text-blue-300 underline"
+            className="text-blue-400 hover:text-blue-300"
           >
-            Contact
+            <FaEnvelope size={20} />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/mkkd-michael-darko/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300"
+          >
+            <FaLinkedin size={20} />
           </a>
         </p>
       </footer>
