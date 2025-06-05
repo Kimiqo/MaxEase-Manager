@@ -40,12 +40,6 @@ function LandingPage() {
         })}
       </div>
 
-      <Link to="/exam">
-        <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-full shadow-lg hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-300">
-          Get Started
-        </button>
-      </Link>
-
       <footer className="mt-12 text-white text-sm">
         <p className="flex justify-center items-center gap-4">
           Developed by Michael Darko • © {new Date().getFullYear()}
