@@ -41,6 +41,17 @@ const styles = `
   }
 `;
 
+  const blockCodes = [
+    "A1", "A2", "A5", "A6",
+    "B1", "B2", "B3", "B4",
+    "BA", "BB", "BC", "BD",
+    "F1", "F2",
+    "JA", "JB", "JK",
+    "T1", "T2", "T3",
+    "TA", "TB", "TC",
+    "X1", "X2"
+  ].sort();
+
 function MainPage() {
   const [timetableData, setTimetableData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,9 +67,7 @@ function MainPage() {
   const campus = searchParams.get("campus") || "accra"; // Default to Accra
 
   // Extract unique block codes for the filter dropdown
-  const uniqueBlockCodes = [...new Set(timetableData.map((exam) => exam.blockCode))]
-    .filter((code) => code && /^[A-Za-z][0-9]$/.test(code))
-    .sort();
+  const uniqueBlockCodes = blockCodes;
 
   useEffect(() => {
     const fetchTimetableData = async () => {
