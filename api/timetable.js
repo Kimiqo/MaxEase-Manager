@@ -51,7 +51,6 @@
 //     return res.status(500).json({ error: `Failed to fetch ${path} file: ${error.message}` });
 //   }
 // }
-
 import express from "express";
 import fetch from "node-fetch";
 import "dotenv/config";
@@ -64,8 +63,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/exam-timetable", async (req, res) => {
-  const fileUrl = `https://drive.google.com/uc?export=download&id=${process.env.FILE_ID}`;
+app.get("/lecture-timetable", async (req, res) => {
+  const campus = req.query.campus?.toLowerCase() || "accra"; // Default to Accra
+  const fileIdEnv = `LECTURE_FILE_ID_${campus.toUpperCase()}`;
+  const fileId = process.env[fileIdEnv];
+
+  if (!fileId) {
+    console.error(`Missing file ID for campus: ${campus}`);
+    return res.status(500).json({ error: `Server configuration error: Missing ${fileIdEnv}` });
+  }
+
+  const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  console.log(`Fetching lecture timetable for ${campus} from: ${fileUrl}`);
+
   try {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error("Failed to fetch file");
@@ -73,13 +83,24 @@ app.get("/exam-timetable", async (req, res) => {
     res.setHeader("Content-Type", "application/octet-stream");
     res.status(200).send(buffer);
   } catch (error) {
-    console.error("Error fetching file:", error);
-    res.status(500).send("Failed to fetch timetable file");
+    console.error(`Error fetching lecture timetable for ${campus}:`, error);
+    res.status(500).send(`Failed to fetch lecture timetable for ${campus}`);
   }
 });
 
-app.get("/lecture-timetable", async (req, res) => {
-  const fileUrl = `https://drive.google.com/uc?export=download&id=${process.env.LECTURE_FILE_ID}`;
+app.get("/exam-timetable", async (req, res) => {
+  const campus = req.query.campus?.toLowerCase() || "accra"; // Default to Accra
+  const fileIdEnv = `EXAM_FILE_ID_${campus.toUpperCase()}`;
+  const fileId = process.env[fileIdEnv];
+
+  if (!fileId) {
+    console.error(`Missing file ID for campus: ${campus}`);
+    return res.status(500).json({ error: `Server configuration error: Missing ${fileIdEnv}` });
+  }
+
+  const fileUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  console.log(`Fetching exam timetable for ${campus} from: ${fileUrl}`);
+
   try {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error("Failed to fetch file");
@@ -87,10 +108,10 @@ app.get("/lecture-timetable", async (req, res) => {
     res.setHeader("Content-Type", "application/octet-stream");
     res.status(200).send(buffer);
   } catch (error) {
-    console.error("Error fetching file:", error);
-    res.status(500).send("Failed to fetch timetable file");
+    console.error(`Error fetching exam timetable for ${campus}:`, error);
+    res.status(500).send(`Failed to fetch exam timetable for ${campus}`);
   }
-})
+});
 
 const PORT = 3001;
 app.listen(PORT, () => {

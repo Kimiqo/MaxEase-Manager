@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
@@ -39,7 +39,7 @@ const styles = `
   }
 `;
 
-// Mapping of block codes to periods based on ITS BLOCKS_edited4Michael.xlsx
+// Mapping of block codes to periods
 const blockToPeriod = {
   "A1": "SEMESTER 1",
   "A2": "SEMESTER 2",
@@ -93,7 +93,7 @@ const periodDisplayNames = {
   "SESSION 2": "Session 2",
 };
 
-// Extract level from ProgrammeCode (e.g., "BSC101" -> 100, "MBA601" -> 600)
+// Extract level from ProgrammeCode
 const getLevelFromProgrammeCode = (programmeCode) => {
   if (!programmeCode) return null;
   const match = programmeCode.match(/\d{3}/);
@@ -130,6 +130,9 @@ function LectureTimetablePage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const miniTimetableRef = useRef(null);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const campus = searchParams.get("campus") || "accra"; // Default to Accra
 
   // Extract unique block codes for the filter dropdown
   const uniqueBlockCodes = blockCodes;
@@ -143,21 +146,20 @@ function LectureTimetablePage() {
 
   // Extract unique days for the filter dropdown
   const uniqueDays = [...new Set(timetableData.map((lecture) => lecture.Day))]
-    .filter((day) => day && (weekOrder.includes(day)))
+    .filter((day) => day && weekOrder.includes(day))
     .sort((a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b));
 
   useEffect(() => {
-    // Fetching lecture timetable data from Google Drive via proxy
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        const proxyUrl = "http://localhost:3001/lecture-timetable";
-        console.log(`Fetching lecture timetable from: ${proxyUrl}`);
+        const proxyUrl = `http://localhost:3001/lecture-timetable?campus=${campus}`;
+        console.log(`Fetching lecture timetable for ${campus} from: ${proxyUrl}`);
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           const errorMessage = errorData.error || `${response.status} ${response.statusText}`;
-          throw new Error(`Failed to fetch timetable: ${errorMessage}`);
+          throw new Error(`Failed to fetch timetable for ${campus}: ${errorMessage}`);
         }
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
@@ -181,28 +183,28 @@ function LectureTimetablePage() {
           .map((row, index) => {
             const block = row[headers.indexOf("Block")] || "TBA";
             return {
-              id: `lecture_${index}`, // Unique ID
+              id: `lecture_${index}`,
               CourseCode: row[headers.indexOf("Course Code")] || "N/A",
               CourseName: row[headers.indexOf("Course Name")] || "N/A",
-              Period: blockToPeriod[block] || "N/A", // Set period based on block code
+              Period: blockToPeriod[block] || "N/A",
               Mode: row[headers.indexOf("Mode")] || "N/A",
               ProgrammeCode: row[headers.indexOf("Programme Code")] || "N/A",
-              ClassSize: row[headers.indexOf("Class Size")] || 0, // Keep 0 as fallback for numbers
-              CreditHours: row[headers.indexOf("CreditHours")] || "3", // Use "3" as fallback for missing credit hours
-              LectureRoom: row[headers.indexOf("Lecture Room")] || "TBA", // Use "TBA" for missing lecture room
-              Time: row[headers.indexOf("Time")] || "Not Scheduled", // Use "Not Scheduled" for missing time
-              LecturerName: row[headers.indexOf("Lecturer Name")] || "TBA", // Use "TBA" for missing lecturer
-              Day: row[headers.indexOf("Day")] || "Not Scheduled", // Use "Not Scheduled" for missing day
-              Block: block, // Use the block value directly
+              ClassSize: row[headers.indexOf("Class Size")] || 0,
+              CreditHours: row[headers.indexOf("CreditHours")] || "3",
+              LectureRoom: row[headers.indexOf("Lecture Room")] || "TBA",
+              Time: row[headers.indexOf("Time")] || "Not Scheduled",
+              LecturerName: row[headers.indexOf("Lecturer Name")] || "TBA",
+              Day: row[headers.indexOf("Day")] || "Not Scheduled",
+              Block: block,
             };
           })
           .filter((lecture) => !lecture.Period.toLowerCase().includes("period"));
 
         setTimetableData(formattedData);
       } catch (error) {
-        console.error("Error fetching timetable:", error);
+        console.error(`Error fetching timetable for ${campus}:`, error);
         alert(
-          `Failed to load timetable data: ${error.message}. Please check your internet connection or ensure the backend server is running.`
+          `Failed to load timetable data for ${campus}: ${error.message}. Please check your internet connection or ensure the backend server is running.`
         );
       } finally {
         setIsLoading(false);
@@ -210,7 +212,7 @@ function LectureTimetablePage() {
     };
 
     fetchTimetableData();
-  }, []);
+  }, [campus]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -276,7 +278,7 @@ function LectureTimetablePage() {
       .toPng(miniTimetableRef.current)
       .then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = "mini_lecture_timetable.png";
+        link.download = `mini_lecture_timetable_${campus}.png`;
         link.href = dataUrl;
         link.click();
       })
@@ -299,14 +301,18 @@ function LectureTimetablePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
-      {/* Inject custom styles */}
       <style>{styles}</style>
-      {/* Floating Header */}
       <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
-          GIMPA Lecture Timetable
+          GIMPA Lecture Timetable - {campus.charAt(0).toUpperCase() + campus.slice(1)}
         </h1>
         <div className="flex gap-4 mt-4 sm:mt-0">
+        <Link
+            to="/"
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
+          >
+            Back to Campus Selection
+          </Link>
           <button
             onClick={openModal}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
@@ -314,7 +320,7 @@ function LectureTimetablePage() {
             How to Use
           </button>
           <Link
-            to="/exam"
+            to={`/exam?campus=${campus}`}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
           >
             View Exam Timetable
@@ -322,14 +328,13 @@ function LectureTimetablePage() {
         </div>
       </header>
 
-      {/* Main content */}
       <div className="flex-1 pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6">
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 tracking-wide">
           Lecture Scheduling Made Easy
         </h3>
         {isLoading ? (
           <p className="text-center text-gray-400 text-sm sm:text-base">
-            Loading timetable data...
+            Loading timetable data for {campus}...
           </p>
         ) : timetableData.length > 0 ? (
           <>
@@ -352,7 +357,6 @@ function LectureTimetablePage() {
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
               <div className="w-full sm:w-1/5">
-                {/* Faux dropdown for period (read-only) */}
                 <div
                   className="w-full p-3 border border-gray-300 rounded-lg text-sm sm:text-base backdrop-blur-sm bg-gray-100 overflow-hidden whitespace-normal break-words"
                 >
@@ -424,12 +428,11 @@ function LectureTimetablePage() {
           </>
         ) : (
           <p className="text-center text-gray-400 text-sm sm:text-base">
-            No timetable data available. Please check back later.
+            No timetable data available for {campus}. Please check back later.
           </p>
         )}
       </div>
 
-      {/* Footer */}
       <footer className="fixed bottom-0 left-0 w-full max-w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
         <p className="flex justify-center items-center gap-4">
           Developed by Michael Darko • © {new Date().getFullYear()}
@@ -458,7 +461,6 @@ function LectureTimetablePage() {
         </p>
       </footer>
 
-      {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
@@ -468,7 +470,6 @@ function LectureTimetablePage() {
         </button>
       )}
 
-      {/* How to Use Modal */}
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
     </div>
   );

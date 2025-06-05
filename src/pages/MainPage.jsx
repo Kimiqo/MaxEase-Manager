@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
@@ -51,6 +51,9 @@ function MainPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const miniTimetableRef = useRef(null);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const campus = searchParams.get("campus") || "accra"; // Default to Accra
 
   // Extract unique block codes for the filter dropdown
   const uniqueBlockCodes = [...new Set(timetableData.map((exam) => exam.blockCode))]
@@ -61,14 +64,13 @@ function MainPage() {
     const fetchTimetableData = async () => {
       setIsLoading(true);
       try {
-        // const proxyUrl = "https://max-ease-manager.vercel.app/api/exam-timetable";
-        const proxyUrl = "http://localhost:3001/exam-timetable";
-        console.log(`Fetching exam timetable from: ${proxyUrl}`);
+        const proxyUrl = `http://localhost:3001/exam-timetable?campus=${campus}`;
+        console.log(`Fetching exam timetable for ${campus} from: ${proxyUrl}`);
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           const errorMessage = errorData.error || `${response.status} ${response.statusText}`;
-          throw new Error(`Failed to fetch timetable: ${errorMessage}`);
+          throw new Error(`Failed to fetch timetable for ${campus}: ${errorMessage}`);
         }
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
@@ -103,7 +105,7 @@ function MainPage() {
           const rawDate = row[headers.indexOf("Exams Date")];
           const examsDate = excelSerialToDate(rawDate);
           return {
-            id: `exam_${index}`, // Unique ID
+            id: `exam_${index}`,
             blockCode: row[headers.indexOf("Block Code")] || "",
             examsDay: row[headers.indexOf("Exams Day")] || "",
             examsDate: examsDate,
@@ -122,9 +124,9 @@ function MainPage() {
 
         setTimetableData(formattedData);
       } catch (error) {
-        console.error("Error fetching timetable:", error);
+        console.error(`Error fetching timetable for ${campus}:`, error);
         alert(
-          `Failed to load timetable data: ${error.message}. Please check your internet connection or ensure the backend server is running.`
+          `Failed to load timetable data for ${campus}: ${error.message}. Please check your internet connection or ensure the backend server is running.`
         );
       } finally {
         setIsLoading(false);
@@ -132,7 +134,7 @@ function MainPage() {
     };
 
     fetchTimetableData();
-  }, []);
+  }, [campus]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -192,7 +194,7 @@ function MainPage() {
       .toPng(miniTimetableRef.current)
       .then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = "mini_timetable.png";
+        link.download = `mini_timetable_${campus}.png`;
         link.href = dataUrl;
         link.click();
       })
@@ -215,14 +217,18 @@ function MainPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
-      {/* Inject custom styles */}
       <style>{styles}</style>
-      {/* Floating Header */}
       <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
-          GIMPA Exam Timetable
+          GIMPA Exam Timetable - {campus.charAt(0).toUpperCase() + campus.slice(1)}
         </h1>
         <div className="flex gap-4 mt-4 sm:mt-0">
+        <Link
+            to="/"
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
+          >
+            Back to Campus Selection
+          </Link>
           <button
             onClick={openModal}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
@@ -230,7 +236,7 @@ function MainPage() {
             How to Use
           </button>
           <Link
-            to="/lecture"
+            to={`/lecture?campus=${campus}`}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
           >
             View Lecture Timetable
@@ -238,14 +244,13 @@ function MainPage() {
         </div>
       </header>
 
-      {/* Main content */}
       <div className="flex-1 pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6">
         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 tracking-wide">
           Exam Scheduling Made Easy
         </h3>
         {isLoading ? (
           <p className="text-center text-gray-400 text-sm sm:text-base">
-            Loading timetable data...
+            Loading timetable data for {campus}...
           </p>
         ) : timetableData.length > 0 ? (
           <>
@@ -314,12 +319,11 @@ function MainPage() {
           </>
         ) : (
           <p className="text-center text-gray-400 text-sm sm:text-base">
-            No timetable data available. Please check back later.
+            No timetable data available for {campus}. Please check back later.
           </p>
         )}
       </div>
 
-      {/* Footer */}
       <footer className="fixed bottom-0 left-0 w-full max-w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
         <p className="flex justify-center items-center gap-4">
           Developed by Michael Darko • © {new Date().getFullYear()}
@@ -348,7 +352,6 @@ function MainPage() {
         </p>
       </footer>
 
-      {/* Back to Top Button */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
@@ -358,7 +361,6 @@ function MainPage() {
         </button>
       )}
 
-      {/* How to Use Modal */}
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
     </div>
   );
