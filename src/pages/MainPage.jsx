@@ -9,6 +9,7 @@ import SearchBar from "../components/exam/SearchBar";
 import TimetableTable from "../components/exam/TimetableTable";
 import MiniTimetable from "../components/exam/MiniTimetable";
 import HowToUseModal from "../components/exam/HowToUseModal";
+import BlockCodeModal from "../components/BlockCodeModal";
 
 // Custom CSS for sheen effect
 const styles = `
@@ -61,6 +62,7 @@ function MainPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showBlockCodeModal, setShowBlockCodeModal] = useState(false);
   const miniTimetableRef = useRef(null);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -223,6 +225,8 @@ function MainPage() {
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
+  const openBlockCodeModal = () => setShowBlockCodeModal(true);
+  const closeBlockCodeModal = () => setShowBlockCodeModal(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
@@ -243,6 +247,12 @@ function MainPage() {
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
           >
             How to Use
+          </button>
+          <button
+            onClick={openBlockCodeModal}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(147,51,234,0.7)]"
+          >
+            Block Codes Explanation
           </button>
           <Link
             to={`/lecture?campus=${campus}`}
@@ -371,6 +381,7 @@ function MainPage() {
       )}
 
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
+      <BlockCodeModal isOpen={showBlockCodeModal} onClose={closeBlockCodeModal} />
     </div>
   );
 }
