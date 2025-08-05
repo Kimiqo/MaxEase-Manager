@@ -313,7 +313,7 @@ function LectureTimetablePage() {
         <div className="flex gap-4 mt-4 sm:mt-0">
         <Link
             to="/"
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
+            className="px-4 py-2 bg-gray-800 text-white rounded-lg border-2 border-white hover:bg-gray-900 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
           >
             Back to Campus Selection
           </Link>
