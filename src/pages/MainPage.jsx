@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import domtoimage from "dom-to-image";
 import * as XLSX from "xlsx";
 import { FaGithub, FaEnvelope, FaLinkedin } from "react-icons/fa";
+import DeveloperBadge from "../components/DeveloperBadge";
+import { FiMenu, FiX } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import SearchBar from "../components/exam/SearchBar";
@@ -55,6 +57,7 @@ const styles = `
 
 function MainPage() {
   const [timetableData, setTimetableData] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [blockCodeFilter, setBlockCodeFilter] = useState("");
@@ -231,36 +234,61 @@ function MainPage() {
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
       <style>{styles}</style>
-      <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center animate-pulse-slow">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 text-center sm:text-left">
-          GIMPA Exam Timetable - {campus.charAt(0).toUpperCase() + campus.slice(1)}
-        </h1>
-        <div className="flex gap-4 mt-4 sm:mt-0">
-        <Link
+      <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center">
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0 bg-white/10 backdrop-blur-md rounded-lg p-1 shadow-md">
+            <img src="/logo.jpg" alt="GIMPA" className="w-8 h-8 object-cover rounded" />
+          </div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500">
+            Exam Timetable • {campus.charAt(0).toUpperCase() + campus.slice(1)}
+          </h1>
+        </div>
+        <div className="hidden sm:flex gap-4 mt-4 sm:mt-0">
+          <Link
             to="/"
+            onClick={() => setMobileMenuOpen(false)}
             className="px-4 py-2 bg-gray-800 text-white rounded-lg border-2 border-white hover:bg-gray-900 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
           >
             Back to Campus Selection
           </Link>
           <button
-            onClick={openModal}
+            onClick={() => { openModal(); setMobileMenuOpen(false); }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
           >
             How to Use
           </button>
           <button
-            onClick={openBlockCodeModal}
+            onClick={() => { openBlockCodeModal(); setMobileMenuOpen(false); }}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(147,51,234,0.7)]"
           >
             Block Codes Explanation
           </button>
           <Link
             to={`/lecture?campus=${campus}`}
+            onClick={() => setMobileMenuOpen(false)}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
           >
             View Lecture Timetable
           </Link>
         </div>
+
+        <div className="sm:hidden ml-2">
+          <button
+            onClick={() => setMobileMenuOpen((s) => !s)}
+            aria-label="Toggle menu"
+            className="p-2 rounded-md bg-white/6 text-white"
+          >
+            {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+          </button>
+        </div>
+        {mobileMenuOpen && (
+          <div className="sm:hidden absolute top-16 right-4 z-40 w-56 bg-gradient-to-br from-gray-900 to-gray-800 p-3 rounded-lg shadow-lg border border-white/10">
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white rounded hover:bg-white/5">Back to Campus Selection</Link>
+            <button onClick={() => { openModal(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-white rounded hover:bg-white/5">How to Use</button>
+            <button onClick={() => { openBlockCodeModal(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-white rounded hover:bg-white/5">Block Codes Explanation</button>
+            <Link to={`/lecture?campus=${campus}`} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-white rounded hover:bg-white/5">View Lecture Timetable</Link>
+          </div>
+        )}
       </header>
 
       <div className="flex-1 pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6">
@@ -343,33 +371,7 @@ function MainPage() {
         )}
       </div>
 
-      <footer className="fixed bottom-0 left-0 w-full max-w-full bg-gradient-to-r from-gray-900 to-gray-700 text-white p-4 text-center shadow-lg text-xs sm:text-sm">
-        <p className="flex justify-center items-center gap-4">
-          Developed by Michael Darko • © {new Date().getFullYear()}
-          <a
-            href="https://github.com/Kimiqo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaGithub size={20} />
-          </a>
-          <a
-            href="mailto:michael12darko@gmail.com"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaEnvelope size={20} />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/mkkd-michael-darko/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaLinkedin size={20} />
-          </a>
-        </p>
-      </footer>
+      <DeveloperBadge />
 
       {showBackToTop && (
         <button

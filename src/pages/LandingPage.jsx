@@ -11,18 +11,30 @@ function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center text-white p-6">
-      <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400 animate-pulse">
-        MaxEase Manager
-      </h1>
-      
-      <p className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mb-8">
-        Transform your exam and lecture chaos into seamless schedules with a single upload across multiple campuses.
-      </p>
-      
-      <p className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center text-white p-6 relative">
+
+      {/* New header: logo tile + two-line title + decorative gradient bar */}
+      <header className="w-full max-w-4xl mx-auto mb-8">
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0 bg-white/10 backdrop-blur-md rounded-lg p-3 shadow-md">
+            <img src="/logo.jpg" alt="GIMPA" className="w-32 h-32 object-cover rounded" />
+          </div>
+
+          <div className="flex-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-snug bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
+              GIMPA
+              <span className="block text-lg sm:text-xl md:text-2xl font-normal text-gray-200">Timetable Manager</span>
+            </h1>
+            <p className="text-sm text-gray-400 mt-1">Organize lectures and exams with ease</p>
+          </div>
+        </div>
+
+        <div className="mt-4 h-1 rounded-full bg-gradient-to-r from-blue-500 via-teal-400 to-green-400 opacity-80" />
+      </header>
+
+      <b><p className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mb-8">
         Select your campus to get started.
-      </p>
+      </p></b>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl w-full mb-8">
         {campuses.map((campus) => {
@@ -39,37 +51,32 @@ function LandingPage() {
           );
         })}
       </div>
+      {/* Floating developer badge */}
+      <div className="fixed right-6 bottom-6 bg-white/6 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 shadow-lg flex items-center gap-3 hover:scale-105 transition-transform">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-green-400 flex items-center justify-center text-white font-semibold">MD</div>
+          <div className="hidden sm:block text-left">
+            <div className="text-sm font-semibold">Michael Darko</div>
+            <div className="text-xs text-gray-300">Developer</div>
+          </div>
+        </div>
 
-      <footer className="mt-12 text-white text-sm">
-        <p className="flex justify-center items-center gap-4">
-          Developed by Michael Darko • © {new Date().getFullYear()}
-          <a
-            href="https://github.com/Kimiqo"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaGithub size={20} />
+        <div className="flex items-center gap-2 ml-2">
+          <a href="https://github.com/Kimiqo" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200" aria-label="GitHub">
+            <FaGithub />
           </a>
-          <a
-            href="mailto:michael12darko@gmail.com"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaEnvelope size={20} />
+          <a href="mailto:michael12darko@gmail.com" className="text-blue-300 hover:text-blue-200" aria-label="Email">
+            <FaEnvelope />
           </a>
-          <a
-            href="https://www.linkedin.com/in/mkkd-michael-darko/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            <FaLinkedin size={20} />
+          <a href="https://www.linkedin.com/in/mkkd-michael-darko/" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200" aria-label="LinkedIn">
+            <FaLinkedin />
           </a>
-        </p>
-      </footer>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default LandingPage;
+
 
