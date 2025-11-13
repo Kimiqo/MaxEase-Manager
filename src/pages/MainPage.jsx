@@ -159,20 +159,21 @@ function MainPage() {
   }, []);
 
   const filteredTimetable = timetableData.filter((exam) => {
+    const q = searchTerm.toLowerCase();
     const matchesSearch = [
       exam.courseName,
       exam.courseCode,
       exam.blockCode,
       exam.lecturerName,
       exam.programmeCode,
-    ].some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()));
+    ].some((field) => String(field || "").toLowerCase().includes(q));
 
     const matchesDate = dateFilter
-      ? exam.examsDate.toLowerCase().includes(dateFilter.toLowerCase())
+      ? String(exam.examsDate || "").toLowerCase().includes(String(dateFilter || "").toLowerCase())
       : true;
 
     const matchesBlockCode = blockCodeFilter
-      ? exam.blockCode.toLowerCase() === blockCodeFilter.toLowerCase()
+      ? String(exam.blockCode || "").toLowerCase() === String(blockCodeFilter || "").toLowerCase()
       : true;
 
     return matchesSearch && matchesDate && matchesBlockCode;
