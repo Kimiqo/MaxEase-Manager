@@ -98,8 +98,9 @@ const periodDisplayNames = {
 
 // Extract level from ProgrammeCode
 const getLevelFromProgrammeCode = (programmeCode) => {
-  if (!programmeCode) return null;
-  const match = programmeCode.match(/\d{3}/);
+  if (programmeCode === null || programmeCode === undefined) return null;
+  const codeStr = String(programmeCode);
+  const match = codeStr.match(/\d{3}/);
   if (match) {
     const level = parseInt(match[0], 10);
     if (level >= 100 && level <= 900 && level % 100 === 0) {
