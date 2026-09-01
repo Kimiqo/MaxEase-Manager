@@ -66,6 +66,7 @@ function MainPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showBlockCodeModal, setShowBlockCodeModal] = useState(false);
+  const [showMiniTimetableModal, setShowMiniTimetableModal] = useState(false);
   const miniTimetableRef = useRef(null);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -151,6 +152,17 @@ function MainPage() {
   }, [campus]);
 
   useEffect(() => {
+    if (showMiniTimetableModal || showModal || showBlockCodeModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMiniTimetableModal, showModal, showBlockCodeModal]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 300);
     };
@@ -231,45 +243,45 @@ function MainPage() {
   const closeModal = () => setShowModal(false);
   const openBlockCodeModal = () => setShowBlockCodeModal(true);
   const closeBlockCodeModal = () => setShowBlockCodeModal(false);
+  const openMiniTimetableModal = () => setShowMiniTimetableModal(true);
+  const closeMiniTimetableModal = () => setShowMiniTimetableModal(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-full overflow-x-hidden">
       <style>{styles}</style>
-      <header className="fixed top-0 left-0 w-full max-w-full z-50 bg-gradient-to-r from-gray-900 to-gray-700 backdrop-blur-md p-4 sm:p-6 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-b border-blue-500/30 flex flex-col sm:flex-row justify-between items-center">
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-screen-2xl z-50 bg-gradient-to-r from-blue-900/85 to-teal-800/85 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl px-6 py-3 flex flex-col sm:flex-row justify-between items-center transition-all">
         <div className="flex items-center gap-4">
-          <div className="flex-shrink-0 bg-white/10 backdrop-blur-md rounded-lg p-1 shadow-md">
-            <img src="/logo.jpg" alt="GIMPA" className="w-8 h-8 object-cover rounded" />
+          <div className="flex-shrink-0 bg-white/10 rounded-xl p-1.5 shadow-sm border border-white/20">
+            <img src="/logo.jpg" alt="GIMPA" className="w-10 h-10 object-contain rounded" />
           </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500">
-            Exam Timetable • {campus.charAt(0).toUpperCase() + campus.slice(1)}
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            Exam Timetable <span className="text-white/50 font-normal mx-1">|</span> <span className="text-teal-300 font-medium">{campus.charAt(0).toUpperCase() + campus.slice(1)}</span>
           </h1>
         </div>
-        <div className="hidden sm:flex gap-4 mt-4 sm:mt-0">
+        <div className="hidden sm:flex items-center gap-3 mt-4 sm:mt-0">
           <Link
             to="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg border-2 border-white hover:bg-gray-900 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(75,85,99,0.7)]"
+            className="px-4 py-2 bg-white/10 text-white font-medium rounded-full border border-white/20 hover:bg-white/20 transition-all text-sm shadow-sm"
           >
-            Back to Campus Selection
+            Campus Selection
           </Link>
           <button
-            onClick={() => { openModal(); setMobileMenuOpen(false); }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
+            onClick={openModal}
+            className="px-4 py-2 bg-white/10 text-white font-medium rounded-full border border-white/20 hover:bg-white/20 transition-all text-sm shadow-sm"
           >
             How to Use
           </button>
           <button
-            onClick={() => { openBlockCodeModal(); setMobileMenuOpen(false); }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(147,51,234,0.7)]"
+            onClick={openBlockCodeModal}
+            className="px-4 py-2 bg-white/10 text-white font-medium rounded-full border border-white/20 hover:bg-white/20 transition-all text-sm shadow-sm"
           >
-            Block Codes Explanation
+            Block Codes
           </button>
           <Link
             to={`/lecture?campus=${campus}`}
-            onClick={() => setMobileMenuOpen(false)}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
+            className="px-5 py-2 bg-white text-blue-900 font-bold rounded-full hover:bg-gray-100 transition-all text-sm shadow-md hover:shadow-lg ml-2"
           >
-            View Lecture Timetable
+            Lecture Timetable →
           </Link>
         </div>
 
@@ -277,7 +289,7 @@ function MainPage() {
           <button
             onClick={() => setMobileMenuOpen((s) => !s)}
             aria-label="Toggle menu"
-            className="p-2 rounded-md bg-white/6 text-white"
+            className="p-2 rounded-md bg-white/10 text-white border border-white/20 hover:bg-white/20"
           >
             {mobileMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
           </button>
@@ -292,9 +304,9 @@ function MainPage() {
         )}
       </header>
 
-      <div className="flex-1 pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6">
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-500 tracking-wide">
-          Exam Scheduling Made Easy
+      <div className="flex-1 pt-28 sm:pt-32 pb-20 sm:pb-24 px-4 sm:px-8 max-w-screen-2xl mx-auto w-full fade-in">
+        <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8 tracking-tight">
+          Find your exams
         </h3>
         {isLoading ? (
           <p className="text-center text-gray-400 text-sm sm:text-base">
@@ -302,14 +314,16 @@ function MainPage() {
           </p>
         ) : timetableData.length > 0 ? (
           <>
-            <div className="max-w-5xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
-              <div className="w-full sm:w-1/5">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="w-full sm:w-1/3">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 px-1">Block Code</label>
                 <select
                   value={blockCodeFilter}
                   onChange={(e) => setBlockCodeFilter(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white outline-none transition-all text-sm font-medium appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
                 >
-                  <option value="">All Block Codes</option>
+                  <option value="">All Blocks</option>
                   {uniqueBlockCodes.map((code) => (
                     <option key={code} value={code}>
                       {code}
@@ -317,40 +331,38 @@ function MainPage() {
                   ))}
                 </select>
               </div>
-              <div className="w-full sm:w-3/5">
+              <div className="w-full sm:w-1/3">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 px-1">Search</label>
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               </div>
-              <div className="w-full sm:w-1/5">
+              <div className="w-full sm:w-1/3">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 px-1">Date</label>
                 <DatePicker
                   selected={dateFilter ? new Date(dateFilter) : null}
                   onChange={(date) =>
                     setDateFilter(date ? date.toISOString().split("T")[0] : "")
                   }
-                  placeholderText="Select exam date (e.g., 2025-05-11)"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base backdrop-blur-sm"
+                  placeholderText="Filter by Date"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-800 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white outline-none transition-all text-sm font-medium cursor-pointer"
                   dateFormat="yyyy-MM-dd"
                 />
               </div>
             </div>
-            <div className="max-w-5xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mb-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <h4 className="text-lg font-medium text-gray-700">
+                {filteredTimetable.length} {filteredTimetable.length === 1 ? 'exam' : 'exams'} found
+              </h4>
               {selectedCourses.length > 0 && (
-                <>
-                  <button
-                    onClick={downloadMiniTimetable}
-                    className="w-full sm:w-auto px-4 py-2 sm:p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(34,197,94,0.7)]"
-                  >
-                    Download Mini-Timetable as PNG
-                  </button>
-                  <button
-                    onClick={scrollToMiniTimetable}
-                    className="w-full sm:w-auto px-4 py-2 sm:p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-sm sm:text-base shadow-[0_0_10px_rgba(59,130,246,0.7)]"
-                  >
-                    View Mini-Timetable
-                  </button>
-                </>
+                <button
+                  onClick={openMiniTimetableModal}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-all text-sm font-medium shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                >
+                  <span>View Selected</span>
+                  <span className="bg-white text-gray-900 text-xs font-bold px-2 py-0.5 rounded-full">{selectedCourses.length}</span>
+                </button>
               )}
             </div>
-            <div className="max-w-10xl mx-auto sheen-effect bg-gradient-to-br from-blue-200 to-gray-900 backdrop-blur-md p-4 sm:p-3 rounded-xl shadow-[0_8px_32px_rgba(59,130,246,0.3)] border border-blue-500/30 hover:shadow-[0_8px_32px_rgba(59,130,246,0.5)] transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <TimetableTable
                 timetableData={filteredTimetable}
                 selectedCourses={selectedCourses}
@@ -359,11 +371,7 @@ function MainPage() {
                 deselectAllCourses={deselectAllCourses}
               />
             </div>
-            {selectedCourses.length > 0 && (
-              <div className="w-full px-4 sm:px-6 mt-8">
-                <MiniTimetable ref={miniTimetableRef} selectedCourses={selectedCourses} />
-              </div>
-            )}
+            {/* Mini Timetable is now rendered in the modal */}
           </>
         ) : (
           <p className="text-center text-gray-400 text-sm sm:text-base">
@@ -385,6 +393,41 @@ function MainPage() {
 
       <HowToUseModal isOpen={showModal} onClose={closeModal} />
       <BlockCodeModal isOpen={showBlockCodeModal} onClose={closeBlockCodeModal} />
+
+      {/* Mini Timetable Modal */}
+      {showMiniTimetableModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 sm:p-6 transition-opacity">
+          <div className="relative w-full h-full max-h-screen bg-gray-50 rounded-2xl shadow-2xl flex flex-col overflow-hidden fade-in border border-gray-200">
+            <div className="flex justify-between items-center p-6 bg-white border-b border-gray-200">
+              <h3 className="text-2xl font-bold text-gray-800 tracking-tight">Your Selected Exams</h3>
+              <button onClick={closeMiniTimetableModal} className="p-2 bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 rounded-full transition-colors">
+                <FiX size={24} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-2 sm:p-4 custom-scrollbar">
+              <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <MiniTimetable ref={miniTimetableRef} selectedCourses={selectedCourses} />
+              </div>
+            </div>
+            
+            <div className="p-6 bg-white border-t border-gray-200 flex justify-end gap-4 items-center">
+              <button
+                onClick={closeMiniTimetableModal}
+                className="px-6 py-2.5 rounded-full text-gray-600 font-medium hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={downloadMiniTimetable}
+                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all"
+              >
+                Download Timetable
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

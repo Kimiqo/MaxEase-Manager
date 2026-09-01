@@ -34,37 +34,43 @@ const BlockCodeModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-[110] p-4 transition-opacity fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-gradient-to-br from-gray-800 to-gray-900 text-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+        className="bg-white text-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-400">Block Codes Explanation</h2>
-        <p className="mb-4 text-sm sm:text-base">Below is a list of block codes and their corresponding descriptions to help you understand the timetable structure.</p>
-        <table className="w-full text-sm sm:text-base">
-          <thead>
-            <tr className="bg-gray-700">
-              <th className="p-2 border-b border-gray-600">Block Code</th>
-              <th className="p-2 border-b border-gray-600">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {blockCodeData.map((item, index) => (
-              <tr key={index} className={index % 2 === 0 ? "bg-gray-800" : "bg-gray-900"}>
-                <td className="p-2 border-b border-gray-600">{item.code}</td>
-                <td className="p-2 border-b border-gray-600">{item.description}</td>
+        <div className="flex-shrink-0">
+          <h2 className="text-xl sm:text-2xl font-bold mb-2 text-teal-700 tracking-tight">Block Codes Explanation</h2>
+          <p className="mb-4 text-sm sm:text-base text-gray-600">Below is a list of block codes and their corresponding descriptions to help you understand the timetable structure.</p>
+        </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar border border-gray-200 rounded-xl">
+          <table className="w-full text-sm sm:text-base text-left">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th className="p-4 font-semibold text-gray-700 border-b border-gray-200 w-1/3">Block Code</th>
+                <th className="p-4 font-semibold text-gray-700 border-b border-gray-200">Description</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <button
-          onClick={onClose}
-          className="mt-4 sm:mt-6 w-full p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-300 text-sm sm:text-base"
-        >
-          Got It!
-        </button>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {blockCodeData.map((item, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-4 font-medium text-teal-700">{item.code}</td>
+                  <td className="p-4 text-gray-600">{item.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex-shrink-0 mt-6 sm:mt-8">
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-teal-600 text-white font-medium rounded-full hover:bg-teal-700 transition-all shadow-md hover:shadow-lg"
+          >
+            Got It!
+          </button>
+        </div>
       </div>
     </div>
   );
