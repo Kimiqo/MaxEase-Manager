@@ -17,21 +17,23 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection,
             <th className="p-3 w-12">
               <div className="relative group">
                 <button className="w-full text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 transition-all shadow-sm">
-                  Sel
+                  Select
                 </button>
-                <div className="absolute hidden group-hover:block bg-white border border-gray-200 rounded-lg shadow-xl z-20 mt-2 min-w-[120px]">
-                  <button
-                    onClick={handleSelectAll}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors rounded-t-lg text-gray-700"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    onClick={handleDeselectAll}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors rounded-b-lg text-gray-700"
-                  >
-                    Deselect All
-                  </button>
+                <div className="absolute left-0 top-full hidden group-hover:block pt-1 min-w-[120px] z-20">
+                  <div className="bg-white border border-gray-200 rounded-lg shadow-xl">
+                    <button
+                      onClick={handleSelectAll}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors rounded-t-lg text-gray-700"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={handleDeselectAll}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors rounded-b-lg text-gray-700"
+                    >
+                      Deselect All
+                    </button>
+                  </div>
                 </div>
               </div>
             </th>
@@ -51,8 +53,8 @@ function TimetableTable({ timetableData, selectedCourses, toggleCourseSelection,
           {timetableData.map((exam) => {
             const isSelected = selectedCourses.some((course) => course.id === exam.id);
             return (
-              <tr 
-                key={exam.id} 
+              <tr
+                key={exam.id}
                 className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50/50' : 'hover:bg-gray-50'}`}
               >
                 <td className="p-3 text-center">
